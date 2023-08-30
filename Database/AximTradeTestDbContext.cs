@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Database.EntitiesConfigurations;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace Database;
@@ -15,6 +16,7 @@ public class AximTradeTestDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new TreeNodeConfiguration());
+        modelBuilder.ApplyConfiguration(new LogConfiguration());
         base.OnModelCreating(modelBuilder);
     }
 }

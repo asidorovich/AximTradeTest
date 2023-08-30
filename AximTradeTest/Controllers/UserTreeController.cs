@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using AximTradeTest.Models.Models;
+using AximTradeTest.Models.Models.TreeNode;
 using AximTradeTest.Services.Services.Interfaces;
 
 namespace AximTradeTest.Controllers;
@@ -11,12 +11,10 @@ public class UserTreeController : Controller
     private readonly ITreeNodeService _treeNodeService;
 
     public UserTreeController(ITreeNodeService treeNodeService)
-    {
-        _treeNodeService = treeNodeService;
-    }
+        => (_treeNodeService) = (treeNodeService);
 
     [HttpPost("/api.user.tree.get")]
-    public async Task<TreeNodeModel?> GetTreeAsync([FromBody] string treeName)
+    public async Task<TreeNodeModel?> GetTreeAsync(string treeName)
     {
         var result = await _treeNodeService.GetOrCreateTreeAsync(treeName);
 

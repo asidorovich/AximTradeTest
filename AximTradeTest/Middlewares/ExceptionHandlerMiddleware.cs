@@ -1,39 +1,22 @@
 ﻿using AximTradeTest.Models.Exceptions;
-using Newtonsoft.Json;
+using Serilog.Context;
 using System.Net;
+using System.Text.Json;
 
 namespace AximTradeTest.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
-    // Enrich is a custom extension method that enriches the Serilog functionality - you may ignore it
-    //private static readonly ILogger Logger = Log.ForContext(MethodBase.GetCurrentMethod()?.DeclaringType).Enrich();
+    
+    private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 
     private readonly RequestDelegate _next;
 
-    private (HttpStatusCode code, string message) GetResponse(Exception exception)
-    {
-        var exceptionModel = new ExceptionModel
-        {
-            Id = Guid.NewGuid(),
-            Type = exception.GetType().ToString()
-        };
-
-        if(exception is SecurityException)
-        {
-            exceptionModel.Data.Add("Message", exception.Message);
-        }
-        else
-        {
-            exceptionModel.Data.Add("Message", $"Internal server error ID = 638136064187111634");
-        }
-
-        return (HttpStatusCode.InternalServerError, JsonConvert.SerializeObject(exceptionModel));
-    }
-
-    public ExceptionHandlerMiddleware(RequestDelegate next)
+    public ExceptionHandlerMiddleware(RequestDelegate next,
+        ILogger<ExceptionHandlerMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task Invoke(HttpContext context)
@@ -44,15 +27,66 @@ public class ExceptionHandlerMiddleware
         }
         catch (Exception exception)
         {
-            // log the error
-            //Logger.Error(exception, "error during executing {Context}", context.Request.Path.Value);
-            var response = context.Response;
-            response.ContentType = "application/json";
-
             // get the response code and message
-            var (status, message) = GetResponse(exception);
-            response.StatusCode = (int)status;
-            await response.WriteAsync(message);
+            var exceptionModel = GetException(exception);
+
+            LogError(exception, exceptionModel, context);
+
+            var httpResponse = context.Response;
+            httpResponse.ContentType = "application/json";
+            httpResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            var response = JsonSerializer.Serialize(exceptionModel, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            await httpResponse.WriteAsync(response);
+        }
+    }
+
+    private ExceptionModel GetException(Exception exception)
+    {
+        var rnd = new Random();
+        long num = rnd.NextInt64();
+
+        var exceptionModel = new ExceptionModel
+        {
+            Id = num
+        };
+
+        string? type;
+        string? message;
+        object? dataObject = null;
+        
+        if (exception is SecurityException)
+        {
+            type = ((SecurityException)exception).Name;
+            message = exception.Message;
+            dataObject = ((SecurityException)exception).Data;
+        }
+        else
+        {
+            type = exception.GetType().Name;
+            message = $"Internal server error ID = {num}";
+        }
+
+        exceptionModel.Type = type;
+        exceptionModel.Data.Add("Message", message);
+        exceptionModel.DataObject = dataObject;
+
+        return exceptionModel;
+    }
+
+    private void LogError(Exception exception, ExceptionModel exceptionModel, HttpContext context)
+    {
+        // log the error
+        using (LogContext.PushProperty("EventId", exceptionModel.Id))
+        using (LogContext.PushProperty("Path", context.Request.Path.Value))
+        using (LogContext.PushProperty("Data", JsonSerializer.Serialize(exceptionModel.DataObject)))
+        using (LogContext.PushProperty("DataType", exceptionModel.DataObject.GetType().Name))
+        {
+            _logger.LogError(exception, exceptionModel.Data["Message"]);
         }
     }
 }

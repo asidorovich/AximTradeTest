@@ -1,4 +1,4 @@
-﻿using AximTradeTest.Models.Models;
+﻿using AximTradeTest.Models.Models.TreeNode;
 
 namespace AximTradeTest.Services.Services.Interfaces;
 
@@ -8,5 +8,7 @@ public interface ITreeNodeService
 
     Task<TreeNodeModel?> CreateTreeNodeAsync(CreateTreeNodeModel model);
 
-    Task<bool> DeleteTreeNodeAsync(string treeName, int treeNodeId);
+    Task<TreeNodeModel?> UpdateTreeNodeAsync(UpdateTreeNodeModel model);
+
+    Task<bool> DeleteTreeNodeAsync(DeleteTreeNodeModel model);
 }

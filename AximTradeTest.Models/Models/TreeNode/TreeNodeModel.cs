@@ -1,10 +1,10 @@
-﻿namespace AximTradeTest.Models.Models;
+﻿namespace AximTradeTest.Models.Models.TreeNode;
 
 public class TreeNodeModel
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
-    public int? ParentId { get; set; }
+    public long? ParentId { get; set; }
 
     public string Name { get; set; }
 

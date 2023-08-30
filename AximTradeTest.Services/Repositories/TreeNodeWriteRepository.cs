@@ -21,9 +21,9 @@ public class TreeNodeWriteRepository : ITreeNodeWriteRepository
         return entity.Entity;
     }
 
-    public async Task<TreeNode?> UpdateAsync(TreeNode treeNode)
+    public TreeNode? Update(TreeNode treeNode)
     {
-        var entity = await _dbContext.AddAsync(treeNode);
+        var entity = _dbContext.Update(treeNode);
 
         _dbContext.SaveChanges();
 

@@ -1,5 +1,5 @@
 ﻿using AximTradeTest.Models.Exceptions;
-using AximTradeTest.Models.Models;
+using AximTradeTest.Models.Models.TreeNode;
 using AximTradeTest.Services.Repositories.Interfaces;
 using AximTradeTest.Services.Services.Interfaces;
 using Database;
@@ -33,7 +33,6 @@ public class TreeNodeService : ITreeNodeService
             result = await CreateNodeAsync(name, null);
         }
 
-
         return result;
     }
 
@@ -43,20 +42,18 @@ public class TreeNodeService : ITreeNodeService
 
         var treeNodes = await _treeNodeReadRepo.GetNodesByRootName(model.TreeName);
 
-        var isParentIdInTree = treeNodes?.Any(x => x.Id == model.ParentId) == true;
+        var treeNode = FindTreeNode(treeNodes, model.ParentId);
 
-        if (!isParentIdInTree)
+        if (treeNode == null)
         {
-            throw new SecurityException($"The provided Parent Id ('{model.ParentId}') does not belong to a tree with name '{model.TreeName}'");
+            throw new SecurityException("Node does not exist in this tree");
         }
 
-        var nodeSiblings = treeNodes?.Where(x => x.ParentId == model.ParentId);
-
-        var isSiblingNameUnique = nodeSiblings?.Any(x => x.Name.ToLower() == model.TreeNodeName.ToLower()) == false;
+        var isSiblingNameUnique = CheckIfSiblingNameUnique(treeNodes, model.ParentId, model.TreeNodeName);
 
         if (!isSiblingNameUnique)
         {
-            throw new SecurityException($"The provided node name ('{model.TreeNodeName}') is not unique for siblings of parent with id '{model.ParentId}'");
+            throw new SecurityException("Duplicate name");
         }
         else
         {
@@ -66,39 +63,58 @@ public class TreeNodeService : ITreeNodeService
         return result;
     }
 
-    public async Task<bool> DeleteTreeNodeAsync(string treeName, int treeNodeId)
+    public async Task<bool> DeleteTreeNodeAsync(DeleteTreeNodeModel model)
     {
-        var result = false;
+        var treeNodes = await _treeNodeReadRepo.GetNodesByRootName(model.TreeName);
 
-        var treeNodes = await _treeNodeReadRepo.GetNodesByRootName(treeName);
-
-        var treeNode = treeNodes?.FirstOrDefault(x => x.Id == treeNodeId);
+        var treeNode = FindTreeNode(treeNodes, model.TreeNodeId);
 
         if (treeNode == null)
         {
-            throw new SecurityException($"The provided Tree Node Id ('{treeNodeId}') does not belong to a tree with name '{treeName}'");
+            throw new SecurityException("Node does not exist in this tree", model);
         }
 
-        result = _treeNodeWriteRepo.Delete(treeNode);
+        var isTreeNodeHasChildren = CheckIfTreeNodeHasChildren(treeNodes, model.TreeNodeId);
 
+        if (isTreeNodeHasChildren)
+        {
+            throw new SecurityException("You have to delete all children nodes first", model);
+        }
+
+        var result = _treeNodeWriteRepo.Delete(treeNode);
         return result;
     }
 
-    private async Task<TreeNodeModel?> CreateNodeAsync(string name, int? parentId)
+    public async Task<TreeNodeModel?> UpdateTreeNodeAsync(UpdateTreeNodeModel model)
     {
         TreeNodeModel? result = null;
 
-        try
+        var treeNodes = await _treeNodeReadRepo.GetNodesByRootName(model.TreeName);
+
+        var treeNode = FindTreeNode(treeNodes, model.TreeNodeId);
+
+        if (treeNode == null)
         {
-            var treeNode = new TreeNode
-            {
-                Name = name,
-                ParentId = parentId
-            };
+            throw new SecurityException("Node does not exist in this tree");
+        }
 
-            var entity = await _treeNodeWriteRepo.InsertAsync(treeNode);
+        if (!treeNode.ParentId.HasValue)
+        {
+            throw new SecurityException("The tree name cannot be edited'");
 
-            if(entity != null)
+        }
+        var isSiblingNameUnique = CheckIfSiblingNameUnique(treeNodes, treeNode.ParentId.Value, model.NewTreeNodeName);
+
+        if (!isSiblingNameUnique)
+        {
+            throw new SecurityException("Duplicate name");
+        }
+        else
+        {
+            treeNode.Name = model.NewTreeNodeName;
+            var entity = _treeNodeWriteRepo.Update(treeNode);
+
+            if (entity != null)
             {
                 result = new TreeNodeModel
                 {
@@ -107,9 +123,29 @@ public class TreeNodeService : ITreeNodeService
                 };
             }
         }
-        catch (Exception ex)
+
+        return result;
+    }
+
+    private async Task<TreeNodeModel?> CreateNodeAsync(string name, int? parentId)
+    {
+        TreeNodeModel? result = null;
+
+        var treeNode = new TreeNode
         {
-            _logger.LogError(ex, $"Error creating a tree with name '{name}'");
+            Name = name,
+            ParentId = parentId
+        };
+
+        var entity = await _treeNodeWriteRepo.InsertAsync(treeNode);
+
+        if(entity != null)
+        {
+            result = new TreeNodeModel
+            {
+                Id = entity.Id,
+                Name = entity.Name
+            };
         }
 
         return result;
@@ -146,7 +182,7 @@ public class TreeNodeService : ITreeNodeService
         return result;
     }
 
-    private IEnumerable<TreeNodeModel> GetChildren(int parentId, IEnumerable<TreeNode> nodes)
+    private IEnumerable<TreeNodeModel> GetChildren(long parentId, IEnumerable<TreeNode> nodes)
     {
         var result = new List<TreeNodeModel>();
 
@@ -169,5 +205,20 @@ public class TreeNodeService : ITreeNodeService
         }
 
         return result;
+    }
+
+    private static TreeNode? FindTreeNode(IEnumerable<TreeNode> treeNodes, int treeNodeId) =>
+        treeNodes?.FirstOrDefault(x => x.Id == treeNodeId);
+
+    private static bool CheckIfTreeNodeHasChildren(IEnumerable<TreeNode> treeNodes, int treeNodeId) =>
+        treeNodes?.Any(x => x.ParentId == treeNodeId) == true;
+
+    private static bool CheckIfSiblingNameUnique(IEnumerable<TreeNode> treeNodes, int parentTreeNodeId, string treeNodeName)
+    {
+        var nodeSiblings = treeNodes?.Where(x => x.ParentId == parentTreeNodeId);
+
+        var isSiblingNameUnique = nodeSiblings?.Any(x => x.Name.ToLower() == treeNodeName.ToLower()) == false;
+
+        return isSiblingNameUnique;
     }
 }
