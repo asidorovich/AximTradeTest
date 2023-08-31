@@ -1,11 +1,6 @@
 ﻿using Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Database.EntitiesConfigurations;
 
@@ -31,7 +26,7 @@ public class LogConfiguration : IEntityTypeConfiguration<Log>
 
         builder.Property(x => x.Message)
             .HasColumnName("message")
-            .HasMaxLength(250);
+            .HasColumnType("text");
 
         builder.Property(x => x.Exception)
             .HasColumnName("exception")

@@ -9,6 +9,8 @@ using Serilog;
 using Serilog.Sinks.MariaDB.Extensions;
 using System.Diagnostics;
 using System.Text.Json;
+using AximTradeTest.Services.Mappers.Interfaces;
+using AximTradeTest.Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,11 +27,16 @@ builder.Services.AddControllers()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(x =>
+{
+    x.CustomSchemaIds((type) => type.FullName);
+});
 
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
+
+ApplyDbMigrations(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -52,6 +59,7 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 
     ConfigureServiceRegistrations(services);
     ConfigureRepositoryRegistrations(services);
+    ConfigureMapperRegistrations(services);
 }
 
 static void ConfigureDb(WebApplicationBuilder builder)
@@ -62,7 +70,6 @@ static void ConfigureDb(WebApplicationBuilder builder)
             .UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr))
             .UseLazyLoadingProxies());
 }
-
 
 static void ConfigureServiceRegistrations(IServiceCollection services)
 {
@@ -75,6 +82,11 @@ static void ConfigureRepositoryRegistrations(IServiceCollection services)
     services.AddTransient<ITreeNodeReadRepository, TreeNodeReadRepository>();
     services.AddTransient<ITreeNodeWriteRepository, TreeNodeWriteRepository>();
     services.AddTransient<ILogReadRepository, LogReadRepository>();
+}
+
+static void ConfigureMapperRegistrations(IServiceCollection services)
+{
+    services.AddTransient<IJournalMapper, JournalMapper>();
 }
 
 static void ConfigureSerilog(WebApplicationBuilder builder)
@@ -93,7 +105,7 @@ static void ConfigureSerilog(WebApplicationBuilder builder)
             {
                 PropertiesToColumnsMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                 {
-                    ["EventId"] = "event_id",
+                    ["ExeptionEventId"] = "event_id",
                     ["Level"] = "log_level",
                     ["Message"] = "message",
                     ["Exception"] = "exception",
@@ -108,4 +120,15 @@ static void ConfigureSerilog(WebApplicationBuilder builder)
             }),
             writeToProviders: true)
         ;
+}
+
+static void ApplyDbMigrations(WebApplication app)
+{
+    // Migrate latest database changes during startup
+    using var scope = app.Services.CreateScope();
+
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<AximTradeTestDbContext>();
+
+    dbContext.Database.Migrate();
 }

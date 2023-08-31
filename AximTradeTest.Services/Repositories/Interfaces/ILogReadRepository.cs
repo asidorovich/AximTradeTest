@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AximTradeTest.Models.Models;
+using Database.Entities;
 
 namespace AximTradeTest.Services.Repositories.Interfaces;
 
 public interface ILogReadRepository
 {
+    Task<Range<Log>> SearchAsync(string? search, DateTime? dateFrom, DateTime? dateTo, int skip, int take);
+
+    Task<Log> GetByEventIdAsync(long eventId);
 }

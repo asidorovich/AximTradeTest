@@ -8,7 +8,7 @@ public class JournalInfo
     public long Id { get; set; }
 
     [Required]
-    public long EventId { get; set; }
+    public long? EventId { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

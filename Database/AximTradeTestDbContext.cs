@@ -1,4 +1,5 @@
-﻿using Database.EntitiesConfigurations;
+﻿using Database.Entities;
+using Database.EntitiesConfigurations;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
@@ -11,7 +12,7 @@ public class AximTradeTestDbContext : DbContext
     {
     }
 
-    public DbSet<TreeNode> TreeNodes { get; set; }
+    public DbSet<Log> Logs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

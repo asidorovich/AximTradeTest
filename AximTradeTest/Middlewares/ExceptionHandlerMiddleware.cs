@@ -81,10 +81,10 @@ public class ExceptionHandlerMiddleware
     private void LogError(Exception exception, ExceptionModel exceptionModel, HttpContext context)
     {
         // log the error
-        using (LogContext.PushProperty("EventId", exceptionModel.Id))
+        using (LogContext.PushProperty("ExeptionEventId", exceptionModel.Id))
         using (LogContext.PushProperty("Path", context.Request.Path.Value))
         using (LogContext.PushProperty("Data", JsonSerializer.Serialize(exceptionModel.DataObject)))
-        using (LogContext.PushProperty("DataType", exceptionModel.DataObject.GetType().Name))
+        using (LogContext.PushProperty("DataType", exceptionModel.DataObject?.GetType().Name))
         {
             _logger.LogError(exception, exceptionModel.Data["Message"]);
         }

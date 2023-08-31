@@ -2,6 +2,7 @@
 using AximTradeTest.Models.Models.Journal;
 using AximTradeTest.Services.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace AximTradeTest.Controllers;
 
@@ -16,14 +17,16 @@ public class UserJournalController : Controller
 
 
     [HttpPost("/api.user.journal.getRange")]
-    public async Task<Range<JournalInfo>> GetJournalRange([FromBody] JournalFilter filter, int skip, int take)
+    public async Task<Range<JournalInfo>> GetJournalRangeASync([FromBody] JournalFilter filter, int skip, int take)
     {
-        return new Range<JournalInfo> { };
+        var result = await _journalService.SearchJournalEntriesAsync(filter, skip, take);
+        return result;
     }
 
     [HttpPost("/api.user.journal.getSingle")]
-    public async Task<Journal> GetSingleJournalRecord(long id)
+    public async Task<Journal> GetSingleJournalRecordAsync([Required] long id)
     {
-        return new Journal();
+        var result = await _journalService.GetJournalEntryAsync(id);
+        return result;
     }
 }

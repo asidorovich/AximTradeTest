@@ -8,7 +8,7 @@ public class Range<T>
     public int Skip { get; set; }
 
     [Required]
-    public int Top { get; set; }
+    public int Count { get; set; }
 
     [Required]
     public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();

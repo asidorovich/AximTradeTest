@@ -1,13 +1,11 @@
-﻿using AximTradeTest.Models.Models.Journal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AximTradeTest.Models.Models;
+using AximTradeTest.Models.Models.Journal;
 
 namespace AximTradeTest.Services.Services.Interfaces;
 
 public interface IJournalService
 {
-    //Task<Models.Models.Range<JournalInfo>> 
+    Task<Range<JournalInfo>> SearchJournalEntriesAsync(JournalFilter filter, int skip, int take);
+
+    Task<Journal> GetJournalEntryAsync(long eventId);
 }

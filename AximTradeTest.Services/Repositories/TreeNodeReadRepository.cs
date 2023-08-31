@@ -6,20 +6,18 @@ using MySqlConnector;
 
 namespace AximTradeTest.Services.Repositories;
 
-public class TreeNodeReadRepository : ITreeNodeReadRepository
+public class TreeNodeReadRepository : ReadRepository, ITreeNodeReadRepository
 {
-    private readonly string _connectionSetring;
-
     public TreeNodeReadRepository(IConfiguration configuration)
+        : base(configuration)
     {
-        _connectionSetring = configuration.GetConnectionString("AximTradeTestConnectionString");
     }
 
     public async Task<IEnumerable<TreeNode>> GetNodesByRootName(string name)
     {
         IEnumerable<TreeNode> result = Enumerable.Empty<TreeNode>();
 
-        using var connection = new MySqlConnection(_connectionSetring);
+        using var connection = new MySqlConnection(ConnectionString);
         var sqlQuery = @"
 WITH RECURSIVE cte_node (id, `name`, parent_id)
 AS
@@ -62,7 +60,7 @@ ORDER BY parent_id;
     {
         IEnumerable<TreeNode> result = Enumerable.Empty<TreeNode>();
 
-        using var connection = new MySqlConnection(_connectionSetring);
+        using var connection = new MySqlConnection(ConnectionString);
         var sqlQuery = @"
 SELECT id, 
     `name`, 

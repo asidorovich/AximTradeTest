@@ -5,7 +5,6 @@ namespace AximTradeTest.Models.Models.Journal;
 
 public class JournalFilter
 {
-    [Required]
     [BindProperty(Name = "search")]
     public string Search { get; set; }
 
