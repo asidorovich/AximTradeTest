@@ -40,10 +40,6 @@ public class LogConfiguration : IEntityTypeConfiguration<Log>
             .HasColumnName("data")
             .HasColumnType("text");
 
-        builder.Property(x => x.DataType)
-            .HasColumnName("data_type")
-            .HasMaxLength(250);
-
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("CURRENT_TIMESTAMP()");

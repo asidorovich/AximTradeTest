@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using AximTradeTest.Services.Mappers.Interfaces;
 using AximTradeTest.Services.Mappers;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
 {
     x.CustomSchemaIds((type) => type.FullName);
+    x.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger", Version = "v1" });
+    var filePath = Path.Combine(System.AppContext.BaseDirectory, "AximTradeTest.xml");
+    x.IncludeXmlComments(filePath);
+    x.EnableAnnotations();
+
+    //x.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
+
+    //x.TagActionsBy(api => new[] { api.GroupName });
 });
 
 var app = builder.Build();
@@ -41,7 +50,10 @@ ApplyDbMigrations(app);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(options =>
+    {
+        options.SerializeAsV2 = true;
+    });
     app.UseSwaggerUI();
 }
 
@@ -113,8 +125,7 @@ static void ConfigureSerilog(WebApplicationBuilder builder)
                     ["Properties"] = null,
                     ["Path"] = "path",
                     ["Data"] = "data",
-                    ["DataType"] = "data_type",
-                    ["Timestamp"] = "created_at",
+                    ["Timestamp"] = "created_at"
                 },
                 TimestampInUtc = true,
             }),

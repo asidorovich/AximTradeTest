@@ -1,11 +1,7 @@
 ﻿using AximTradeTest.Models.Models.Journal;
+using AximTradeTest.Services.Helpers;
 using AximTradeTest.Services.Mappers.Interfaces;
 using Database.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AximTradeTest.Services.Mappers;
 
@@ -36,9 +32,15 @@ public class JournalMapper : IJournalMapper
         return journalInfo;
     }
 
-    private string CombineText(Log log)
+    private static string CombineText(Log log)
     {
-        var result = string.Empty;
+        var dataValues = JsonHelper.ConvertJsonToString(log.Data);
+
+        var result = $"Request ID = {log.EventId} \r\n" +
+            $"Path = {log.Path}\r\n" +
+            $"{dataValues}" +
+            $"{log.Exception}";
+
         return result;
     }
 }

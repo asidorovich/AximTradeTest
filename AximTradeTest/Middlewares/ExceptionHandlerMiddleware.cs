@@ -80,11 +80,17 @@ public class ExceptionHandlerMiddleware
 
     private void LogError(Exception exception, ExceptionModel exceptionModel, HttpContext context)
     {
+        object? data = null;
+
+        if(exceptionModel.DataObject != null)
+        {
+            data = JsonSerializer.Serialize(exceptionModel.DataObject, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        }
+        
         // log the error
         using (LogContext.PushProperty("ExeptionEventId", exceptionModel.Id))
         using (LogContext.PushProperty("Path", context.Request.Path.Value))
-        using (LogContext.PushProperty("Data", JsonSerializer.Serialize(exceptionModel.DataObject)))
-        using (LogContext.PushProperty("DataType", exceptionModel.DataObject?.GetType().Name))
+        using (LogContext.PushProperty("Data", data))
         {
             _logger.LogError(exception, exceptionModel.Data["Message"]);
         }

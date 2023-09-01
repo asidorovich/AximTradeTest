@@ -62,7 +62,7 @@ FROM log;
     
     public async Task<Log> GetByEventIdAsync(long eventId)
     {
-        var result = await _dbSet.SingleAsync<Log>(x => x.EventId == eventId);
+        var result = await _dbSet.SingleAsync(x => x.EventId == eventId);
 
         return result;
     }

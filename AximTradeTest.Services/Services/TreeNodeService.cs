@@ -46,14 +46,14 @@ public class TreeNodeService : ITreeNodeService
 
         if (treeNode == null)
         {
-            throw new SecurityException("Node does not exist in this tree");
+            throw new SecurityException("Node does not exist in this tree", model);
         }
 
         var isSiblingNameUnique = CheckIfSiblingNameUnique(treeNodes, model.ParentId, model.TreeNodeName);
 
         if (!isSiblingNameUnique)
         {
-            throw new SecurityException("Duplicate name");
+            throw new SecurityException("Duplicate name", model);
         }
         else
         {
@@ -95,19 +95,19 @@ public class TreeNodeService : ITreeNodeService
 
         if (treeNode == null)
         {
-            throw new SecurityException("Node does not exist in this tree");
+            throw new SecurityException("Node does not exist in this tree", model);
         }
 
         if (!treeNode.ParentId.HasValue)
         {
-            throw new SecurityException("The tree name cannot be edited'");
+            throw new SecurityException("The tree name cannot be edited'", model);
 
         }
         var isSiblingNameUnique = CheckIfSiblingNameUnique(treeNodes, treeNode.ParentId.Value, model.NewTreeNodeName);
 
         if (!isSiblingNameUnique)
         {
-            throw new SecurityException("Duplicate name");
+            throw new SecurityException("Duplicate name", model);
         }
         else
         {

@@ -14,7 +14,5 @@ public class Log : Entity
 
     public string? Data { get; set; }
 
-    public string? DataType { get; set; }
-
     public DateTime CreatedAt { get; set; }
 }
