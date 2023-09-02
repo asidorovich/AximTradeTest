@@ -31,7 +31,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(x =>
 {
     x.CustomSchemaIds((type) => type.FullName);
-    x.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger", Version = "v1" });
+    x.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger", Version = "1.0.0" });
     var filePath = Path.Combine(System.AppContext.BaseDirectory, "AximTradeTest.xml");
     x.IncludeXmlComments(filePath);
     x.EnableAnnotations();

@@ -7,25 +7,25 @@ namespace AximTradeTest.Services.Mappers;
 
 public class JournalMapper : IJournalMapper
 {
-    public Journal Map(Log log)
+    public JournalData MapData(Log log)
     {
-        var journal = new Journal
+        var journalData = new JournalData
         {
             Id = log.Id,
-            EventId = log.EventId,
+            EventId = log.EventId.ToString(),
             CreatedAt = log.CreatedAt,
             Text = CombineText(log)
         };
 
-        return journal;
+        return journalData;
     }
 
-    public JournalInfo MapInfo(Log log)
+    public JournalInfoData MapInfoData(Log log)
     {
-        var journalInfo = new JournalInfo
+        var journalInfo = new JournalInfoData
         {
             Id = log.Id,
-            EventId = log.EventId,
+            EventId = log.EventId.ToString(),
             CreatedAt = log.CreatedAt
         };
 

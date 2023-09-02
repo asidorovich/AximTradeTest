@@ -24,11 +24,9 @@ public class TreeNodeService : ITreeNodeService
 
     public async Task<TreeNodeModel?> GetOrCreateTreeAsync(string name)
     {
-        TreeNodeModel? result = null;
+        var result = await GetTreeAsync(name);
 
-        var tree = await GetTreeAsync(name);
-
-        if(tree == null)
+        if(result == null)
         {
             result = await CreateNodeAsync(name, null);
         }

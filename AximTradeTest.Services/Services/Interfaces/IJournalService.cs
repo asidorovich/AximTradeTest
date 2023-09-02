@@ -5,7 +5,7 @@ namespace AximTradeTest.Services.Services.Interfaces;
 
 public interface IJournalService
 {
-    Task<Range<JournalInfo>> SearchJournalEntriesAsync(JournalFilter filter, int skip, int take);
+    Task<Range<JournalInfoData>> SearchJournalEntriesAsync(JournalFilter filter, int skip, int take);
 
-    Task<Journal> GetJournalEntryAsync(long eventId);
+    Task<JournalData> GetJournalEntryAsync(long eventId);
 }

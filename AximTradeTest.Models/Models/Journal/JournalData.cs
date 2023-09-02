@@ -1,9 +1,8 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace AximTradeTest.Models.Models.Journal;
 
-public class Journal : JournalInfo
+public class JournalData : JournalInfoData
 {
     [Required]
     public string Text { get; set; }

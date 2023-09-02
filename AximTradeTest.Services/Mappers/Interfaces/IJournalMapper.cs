@@ -5,7 +5,7 @@ namespace AximTradeTest.Services.Mappers.Interfaces;
 
 public interface IJournalMapper
 {
-    JournalInfo MapInfo(Log log);
+    JournalInfoData MapInfoData(Log log);
 
-    Journal Map(Log log);
+    JournalData MapData(Log log);
 }

@@ -32,7 +32,7 @@ SELECT l.id,
 	l.event_id AS EventId,
 	l.created_at AS CreatedAt
 FROM log l
-WHERE ((@search IS NULL OR TRIM(@search) = '') OR l.event_id LIKE CONCAT('%', @search, '%'))
+WHERE ((@search IS NULL OR TRIM(@search) = '') OR (l.event_id LIKE CONCAT('%', @search, '%') OR CAST(l.created_at AS VARCHAR(50)) LIKE CONCAT('%', @search, '%') ))
 	AND (@dateFrom IS NULL OR l.created_at >= @dateFrom)
 	AND (@dateTo IS NULL OR l.created_at <= @dateTo)
 LIMIT @skip, @take;

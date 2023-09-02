@@ -27,7 +27,6 @@ public class UserTreeNodeController : ControllerBase
     /// <param name="treeNodeName"></param>
     /// <param name="parentId"></param>
     /// <returns></returns>
-    [SwaggerOperation("user.tree.node", "Represents tree node API" )]
     [HttpPost("/api.user.tree.create")]
     public async Task<IActionResult> CreateUserTreeNodeAsync([Required] string treeName, [Required] string treeNodeName, [Required] int parentId)
     {

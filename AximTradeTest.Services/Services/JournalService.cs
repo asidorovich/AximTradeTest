@@ -15,19 +15,19 @@ public class JournalService : IJournalService
     public JournalService(ILogReadRepository logRepository, IJournalMapper journalMapper)
         => (_logRepository, _journalMapper) = (logRepository, journalMapper);
 
-    public async Task<Range<JournalInfo>> SearchJournalEntriesAsync(JournalFilter filter, int skip, int take)
+    public async Task<Range<JournalInfoData>> SearchJournalEntriesAsync(JournalFilter filter, int skip, int take)
     {
-        var result = new Range<JournalInfo>();
+        var result = new Range<JournalInfoData>();
 
         var logEntriesRange = await _logRepository.SearchAsync(filter.Search, filter.From, filter.To, skip, take);
 
         if(logEntriesRange.Items?.Any() == true)
         {
-            var journalInfoEntries = new List<JournalInfo>();
+            var journalInfoEntries = new List<JournalInfoData>();
 
             foreach(var logEntry in logEntriesRange.Items)
             {
-                var journalInfo = _journalMapper.MapInfo(logEntry);
+                var journalInfo = _journalMapper.MapInfoData(logEntry);
                 journalInfoEntries.Add(journalInfo);
             }
 
@@ -40,11 +40,11 @@ public class JournalService : IJournalService
         return result;
     }
 
-    public async Task<Journal> GetJournalEntryAsync(long eventId)
+    public async Task<JournalData> GetJournalEntryAsync(long eventId)
     {
         var log = await _logRepository.GetByEventIdAsync(eventId);
 
-        var result = _journalMapper.Map(log);
+        var result = _journalMapper.MapData(log);
 
         return result;
     }

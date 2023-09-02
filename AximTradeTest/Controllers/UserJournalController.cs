@@ -30,7 +30,8 @@ public class UserJournalController : ControllerBase
     /// <param name="take"></param>
     /// <returns></returns>
     [HttpPost("/api.user.journal.getRange")]
-    public async Task<Range<JournalInfo>> GetJournalRangeAsync([Required][FromBody] JournalFilter filter, [Required] int skip, [Required] int take)
+    [ProducesResponseType(typeof(Range<JournalInfo>), 200)]
+    public async Task<Range<JournalInfoData>> GetJournalRangeAsync([Required][FromBody] JournalFilter filter, [Required] int skip, [Required] int take)
     {
         var result = await _journalService.SearchJournalEntriesAsync(filter, skip, take);
         return result;
@@ -45,7 +46,8 @@ public class UserJournalController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpPost("/api.user.journal.getSingle")]
-    public async Task<Journal> GetSingleJournalRecordAsync([Required] long id)
+    [ProducesResponseType(typeof(Journal), 200)]
+    public async Task<JournalData> GetSingleJournalRecordAsync([Required] long id)
     {
         var result = await _journalService.GetJournalEntryAsync(id);
         return result;
